@@ -1,0 +1,43 @@
+name: Debug server state (temporary)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Write SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p "${{ secrets.SSH_PORT || '22' }}" -H "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Inspect server
+        run: |
+          ssh -i ~/.ssh/id_rsa -p "${{ secrets.SSH_PORT || '22' }}" \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" bash -s <<'EOF'
+          set -x
+          hostname
+          echo "== deploy dir contents =="
+          ls -la "${{ secrets.SSH_DEPLOY_DIR }}/all-websites/" "${{ secrets.SSH_DEPLOY_DIR }}/all-websites/assets/" 2>&1
+          echo "== who serves the old bundle =="
+          find / -name 'index-DB_vras3.js' -not -path '/proc/*' 2>/dev/null
+          echo "== new bundle locations =="
+          find / -name 'index-BMYpSc-s.js' -not -path '/proc/*' 2>/dev/null
+          echo "== web/proxy processes =="
+          ps aux | grep -iE 'nginx|caddy|traefik|cloudflared|docker' | grep -v grep
+          echo "== listening ports =="
+          (ss -tlnp 2>/dev/null || netstat -tlnp 2>/dev/null) | head -30
+          echo "== docker containers =="
+          docker ps 2>&1 | head -20
+          echo "== nginx sites =="
+          grep -rE 'server_name|root |proxy_pass' /etc/nginx/sites-enabled/ /etc/nginx/conf.d/ 2>/dev/null | head -40
+          echo "== caddy config =="
+          cat /etc/caddy/Caddyfile 2>/dev/null | head -60
+          echo "== cloudflared config =="
+          cat /etc/cloudflared/config.yml ~/.cloudflared/config.yml 2>/dev/null
+          echo "== local curl =="
+          curl -s -H 'Host: all-websites.w-ilyas.site' http://127.0.0.1/ 2>&1 | grep -oE '/assets/[^"]*\.js' || true
+          EOF
