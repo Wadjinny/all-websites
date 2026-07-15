@@ -1,0 +1,8 @@
+all-websites.w-ilyas.site {
+	encode gzip
+	handle {
+		root * /home/ubuntu/thinkering/all-websites
+		try_files {path} /index.html
+		file_server
+	}
+}
