@@ -1,70 +1,102 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Azeret+Mono:wght@300;400;500&display=swap');
 @import "tailwindcss";
 
-/* Static font tokens */
-@theme {
-  --font-display: 'Cormorant', Georgia, serif;
-  --font-mono: 'Azeret Mono', 'Courier New', monospace;
-}
-
-/* Color tokens — mapped to CSS vars so dark/light switching works at runtime */
-@theme inline {
-  --color-canvas: var(--bg);
-  --color-surface: var(--surface);
-  --color-surface-hover: var(--surface-hover);
-  --color-border: var(--border);
-  --color-fg: var(--text);
-  --color-fg-muted: var(--text-muted);
-  --color-fg-dim: var(--text-dim);
-  --color-accent: var(--accent);
-}
-
-/* Dark theme (default) */
 :root {
-  --bg: #080808;
-  --surface: #111111;
-  --surface-hover: #181818;
-  --border: rgba(255, 255, 255, 0.07);
-  --text: #f0ece4;
-  --text-muted: #5a5650;
-  --text-dim: #3a3632;
-  --accent: #c8a96e;
+  --indigo: #4f46e5;
+  --indigo-hover: #4338ca;
+  --indigo-soft: #eef2ff;
+  --indigo-100: #e0e7ff;
+  --white: #ffffff;
+  --bg: #f6f7f9;
+  --g100: #f3f4f6;
+  --g200: #e5e7eb;
+  --g300: #d1d5db;
+  --g400: #9ca3af;
+  --g500: #6b7280;
+  --g700: #374151;
+  --g900: #111827;
+
+  --r-card: 20px;
+  --r-ctrl: 14px;
+  --r-pill: 999px;
+
+  --sh-card: 0 4px 16px rgba(17, 24, 39, 0.05);
+  --sh-hover: 0 8px 24px rgba(17, 24, 39, 0.09);
+  --sh-pop: 0 12px 32px rgba(79, 70, 229, 0.22);
+
+  --font: "Segoe UI", system-ui, -apple-system, "Inter", sans-serif;
 }
 
-/* Light theme */
-:root[data-theme='light'] {
-  --bg: #f5f2ed;
-  --surface: #faf8f5;
-  --surface-hover: #ede9e3;
-  --border: rgba(0, 0, 0, 0.08);
-  --text: #1a1714;
-  --text-muted: #9a9188;
-  --text-dim: #bbb3a8;
-  --accent: #a07840;
+@theme inline {
+  --font-sans: var(--font);
+
+  --color-indigo: var(--indigo);
+  --color-indigo-hover: var(--indigo-hover);
+  --color-indigo-soft: var(--indigo-soft);
+  --color-indigo-100: var(--indigo-100);
+  --color-white: var(--white);
+  --color-bg: var(--bg);
+  --color-g100: var(--g100);
+  --color-g200: var(--g200);
+  --color-g300: var(--g300);
+  --color-g400: var(--g400);
+  --color-g500: var(--g500);
+  --color-g700: var(--g700);
+  --color-g900: var(--g900);
+
+  --radius-card: var(--r-card);
+  --radius-ctrl: var(--r-ctrl);
+  --radius-pill: var(--r-pill);
+
+  --shadow-card: var(--sh-card);
+  --shadow-hover: var(--sh-hover);
+  --shadow-pop: var(--sh-pop);
 }
 
 @layer base {
+  * {
+    box-sizing: border-box;
+  }
+
   html {
     background-color: var(--bg);
-    color: var(--text);
-    transition: background 0.2s ease, color 0.2s ease;
+    color: var(--g900);
+    font-family: var(--font);
+    font-size: 14px;
+    line-height: 1.45;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
   }
 
   body {
     min-height: 100svh;
+    margin: 0;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  button {
+    font-family: inherit;
+    border: none;
+    cursor: pointer;
+    background: none;
   }
 }
 
-/* Card entrance animation — uses CSS custom prop --i set inline for staggered delay */
 @keyframes card-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .card-animate {
-  animation: card-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: card-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-delay: calc(var(--i, 0) * 40ms);
 }

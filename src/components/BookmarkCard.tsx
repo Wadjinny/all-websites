@@ -1,62 +1,59 @@
-import { LuArrowUpRight } from 'react-icons/lu'
 import type { LinkItem } from '../types/bookmark'
 
 interface Props {
   link: LinkItem
   index: number
-  view: 'grid' | 'list'
+  selected: boolean
+  onSelect: (link: LinkItem) => void
 }
 
-export function LinkCard({ link, index, view }: Props) {
-  const isGrid = view === 'grid'
-
+export function LinkCard({ link, index, selected, onSelect }: Props) {
   return (
-    <a
-      href={link.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`group relative flex text-fg no-underline bg-surface overflow-hidden transition-colors duration-150 hover:bg-surface-hover card-animate ${
-        isGrid ? 'flex-col' : 'flex-row items-stretch border-b border-border'
+    <button
+      type="button"
+      onClick={() => onSelect(link)}
+      className={`card-animate group flex w-full items-center gap-3.5 border-b border-g100 px-5 py-3.5 text-left transition-colors duration-150 last:border-b-0 ${
+        selected ? 'bg-indigo-soft' : 'hover:bg-g100/60'
       }`}
       style={{ '--i': index } as React.CSSProperties}
+      aria-pressed={selected}
     >
-      {/* Image */}
-      <div className={`overflow-hidden ${isGrid ? 'flex-1 min-h-0' : 'w-40 shrink-0'}`}>
+      {link.image ? (
         <img
           src={link.image}
           alt=""
-          className="w-full h-full object-cover block transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] saturate-[0.85] group-hover:scale-[1.04] sepia-50"
+          className="h-11 w-11 shrink-0 rounded-ctrl object-cover"
           loading="lazy"
         />
-      </div>
+      ) : (
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-ctrl bg-indigo-soft text-sm font-bold text-indigo">
+          {link.title.slice(0, 1).toUpperCase()}
+        </div>
+      )}
 
-      {/* Body */}
-      <div className={`flex flex-col gap-1.5 ${
-        isGrid
-          ? 'shrink-0 px-3.5 pt-3 pb-3.5 border-t border-border'
-          : 'flex-1 min-w-0 px-5 py-4 justify-center border-l border-border'
-      }`}>
-        <span className="text-[9px] tracking-[0.16em] uppercase text-accent font-mono">
-          {link.tag}
-        </span>
-        <h2 className={`font-display font-semibold leading-[1.2] tracking-[-0.01em] text-fg m-0 ${
-          isGrid ? 'text-[clamp(14px,1.4vw,18px)]' : 'text-[clamp(16px,1.6vw,22px)]'
-        }`}>
-          {link.title}
-        </h2>
-        <p className={`text-fg-muted m-0 ${
-          isGrid
-            ? 'text-[11px] leading-[1.55] line-clamp-2'
-            : 'text-[12px] leading-[1.6] max-w-[60ch]'
-        }`}>
-          {link.description}
-        </p>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <h2 className="m-0 truncate text-[14px] font-bold text-g900">
+            {link.title}
+          </h2>
+          {link.tag && (
+            <span
+              className={`hidden shrink-0 rounded-pill px-2.5 py-0.5 text-[11px] font-bold sm:inline-flex ${
+                selected
+                  ? 'bg-white text-indigo'
+                  : 'bg-indigo-soft text-indigo'
+              }`}
+            >
+              {link.tag}
+            </span>
+          )}
+        </div>
+        {link.description && (
+          <p className="m-0 mt-0.5 truncate text-[13px] text-g500">
+            {link.description}
+          </p>
+        )}
       </div>
-
-      {/* Arrow */}
-      <span className="absolute top-3 right-3.5 text-fg-muted opacity-0 -translate-x-[3px] translate-y-[3px] transition-[opacity,transform] duration-200 group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0">
-        <LuArrowUpRight size={15} />
-      </span>
-    </a>
+    </button>
   )
 }

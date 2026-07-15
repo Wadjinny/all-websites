@@ -1,19 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { BsGrid, BsList } from 'react-icons/bs'
-import { LuSun, LuMoon } from 'react-icons/lu'
 import type { LinkItem } from './types/bookmark'
 import { LinkCard } from './components/BookmarkCard'
+import { DetailPanel } from './components/DetailPanel'
 import { pb } from './lib/pocketbase'
 
-type View = 'grid' | 'list'
-type Theme = 'dark' | 'light'
-
 function App() {
-  const [view, setView] = useState<View>('grid')
-  const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem('theme') as Theme) ?? 'dark'
-  )
+  const [selectedId, setSelectedId] = useState<string | null>(null)
 
   const { data: links = [], isLoading, isError } = useQuery<LinkItem[]>({
     queryKey: ['bookmarks'],
@@ -39,81 +32,93 @@ function App() {
     },
   })
 
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme
-    localStorage.setItem('theme', theme)
-  }, [theme])
+  const selected = links.find((l) => l.id === selectedId) ?? null
 
-  const btnBase = 'flex items-center justify-center w-[30px] h-[26px] border-0 rounded-[3px] cursor-pointer transition-colors duration-150'
+  useEffect(() => {
+    if (!selectedId) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSelectedId(null)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [selectedId])
 
   return (
-    <div className="max-w-[1440px] mx-auto px-6 flex flex-col h-svh overflow-hidden">
-
-      <header className="pt-5 shrink-0">
-        <div className="flex items-center gap-4 mb-4">
-          <p className="text-[10px] font-normal tracking-[0.18em] uppercase text-fg-muted">
-            Selected Bookmarks ✅
-          </p>
-          <h1 className="font-display text-[clamp(32px,4vw,52px)] font-bold tracking-[-0.02em] leading-none text-fg">
+    <div className="mx-auto flex min-h-svh max-w-[1120px] flex-col px-5 py-6 sm:px-7 sm:py-8">
+      <header className="mb-6 flex items-center gap-3.5">
+        <div
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-ctrl bg-indigo text-base font-extrabold text-white"
+          aria-hidden
+        >
+          L
+        </div>
+        <div className="min-w-0">
+          <h1 className="text-2xl font-[750] tracking-[-0.6px] text-g900">
             Links
           </h1>
-          <p className="text-[11px] text-fg-dim tracking-[0.08em]">
-            {links.length} items
+          <p className="mt-0.5 text-[13.5px] text-g500">
+            Selected bookmarks · {links.length} items
           </p>
-
-          {/* View toggle */}
-          <div className="ml-auto flex items-center gap-0.5 border border-border rounded p-0.5">
-            <button
-              className={`${btnBase} ${view === 'grid' ? 'bg-surface-hover text-fg' : 'bg-transparent text-fg-muted hover:text-fg'}`}
-              onClick={() => setView('grid')}
-              title="Grid view"
-            >
-              <BsGrid size={14} />
-            </button>
-            <button
-              className={`${btnBase} ${view === 'list' ? 'bg-surface-hover text-fg' : 'bg-transparent text-fg-muted hover:text-fg'}`}
-              onClick={() => setView('list')}
-              title="List view"
-            >
-              <BsList size={16} />
-            </button>
-          </div>
-
-          {/* Theme toggle */}
-          <button
-            className="flex items-center justify-center w-[30px] h-[30px] bg-transparent border border-border rounded cursor-pointer text-fg-muted transition-colors duration-150 hover:bg-surface-hover hover:text-fg"
-            onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
-            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            {theme === 'dark' ? <LuSun size={15} /> : <LuMoon size={15} />}
-          </button>
         </div>
-
-        <div className="w-full h-px bg-border" />
       </header>
 
-      <main className={
-        view === 'grid'
-          ? 'flex-1 min-h-0 mt-px grid grid-cols-2 lg:grid-cols-3 xl:grid-row-4 [grid-auto-rows:1fr] gap-px bg-border border border-border overflow-hidden'
-          : 'flex-1 min-h-0 mt-px flex flex-col overflow-y-auto border border-border border-t-0'
-      }>
-        {isLoading && (
-          <p className="col-span-full p-8 text-sm text-fg-muted">Loading…</p>
-        )}
-        {isError && (
-          <p className="col-span-full p-8 text-sm text-fg-muted">Failed to load bookmarks.</p>
-        )}
-        {!isLoading && !isError && links.map((link, i) => (
-          <LinkCard key={link.id} link={link} index={i} view={view} />
-        ))}
-      </main>
+      <div className="grid flex-1 gap-4 lg:grid-cols-[1.5fr_1fr] lg:items-start">
+        <main className="overflow-hidden rounded-card bg-white shadow-card">
+          {isLoading && (
+            <p className="p-8 text-[13px] text-g500">Loading…</p>
+          )}
+          {isError && (
+            <p className="p-8 text-[13px] text-g500">
+              Failed to load bookmarks.
+            </p>
+          )}
+          {!isLoading &&
+            !isError &&
+            links.map((link, i) => (
+              <LinkCard
+                key={link.id}
+                link={link}
+                index={i}
+                selected={link.id === selectedId}
+                onSelect={(item) =>
+                  setSelectedId((id) => (id === item.id ? null : item.id))
+                }
+              />
+            ))}
+        </main>
 
-      <footer className="py-3 shrink-0 flex items-center gap-3 text-[10px] font-light tracking-[0.1em] text-fg-dim">
+        {/* Desktop side panel */}
+        <div className="sticky top-6 hidden max-h-[calc(100svh-3rem)] lg:block">
+          <DetailPanel
+            link={selected}
+            onClose={() => setSelectedId(null)}
+          />
+        </div>
+      </div>
+
+      {/* Mobile detail sheet */}
+      {selected && (
+        <div className="lg:hidden">
+          <button
+            type="button"
+            className="fixed inset-0 z-30 bg-g900/20"
+            aria-label="Close details overlay"
+            onClick={() => setSelectedId(null)}
+          />
+          <div className="fixed inset-x-4 bottom-4 z-40 max-h-[75svh] overflow-hidden">
+            <DetailPanel
+              link={selected}
+              onClose={() => setSelectedId(null)}
+            />
+          </div>
+        </div>
+      )}
+
+      <footer className="mt-6 flex items-center gap-2 text-[12px] font-medium text-g400">
         <span>Updated continuously</span>
-        <span className="text-fg-muted">·</span>
+        <span>·</span>
         <span>{new Date().getFullYear()}</span>
       </footer>
-
     </div>
   )
 }
