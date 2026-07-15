@@ -52,7 +52,7 @@ function App() {
       <header className="pt-5 shrink-0">
         <div className="flex items-center gap-4 mb-4">
           <p className="text-[10px] font-normal tracking-[0.18em] uppercase text-fg-muted">
-            Selected Bookmarks
+            Selected Bookmarks ✅
           </p>
           <h1 className="font-display text-[clamp(32px,4vw,52px)] font-bold tracking-[-0.02em] leading-none text-fg">
             Links
