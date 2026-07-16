@@ -48,10 +48,10 @@ export function DetailPanel({ link, onClose }: Props) {
           <img
             src={link.image}
             alt=""
-            className="mb-5 aspect-[16/10] w-full rounded-ctrl object-cover"
+            className="mb-5 aspect-[16/10] w-full rounded-ctrl bg-g100 object-contain"
           />
         ) : (
-          <div className="mb-5 flex aspect-[16/10] w-full items-center justify-center rounded-ctrl bg-indigo-soft text-3xl font-bold text-indigo">
+          <div className="mb-5 flex aspect-[4/3] w-full items-center justify-center rounded-ctrl bg-indigo-soft text-3xl font-bold text-indigo">
             {link.title.slice(0, 1).toUpperCase()}
           </div>
         )}
