@@ -12,9 +12,10 @@ pnpm, Vite 8, React 19, TanStack Query, Tailwind CSS 4, PocketBase (`VITE_PB_URL
 
 ```bash
 pnpm install
-# set VITE_PB_URL in .env
+cp .env.example .env   # set VITE_PB_URL
 pnpm dev
 ```
+
 
 ## Deploy
 
