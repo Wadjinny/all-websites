@@ -1,4 +1,4 @@
-all-websites.w-ilyas.site {
+all-websites.w-ilyas.ink, all-websites.w-ilyas.site {
 	encode gzip
 	handle {
 		root * /home/ubuntu/thinkering/all-websites
